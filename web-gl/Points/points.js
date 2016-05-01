@@ -2,13 +2,15 @@
 var gl;
 function initGL(canvas) {
     try {
-        //gl = canvas.getContext("experimental-webgl");
          gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
         gl.viewportWidth = canvas.width;
         gl.viewportHeight = canvas.height;
         gl.getExtension('GL_OES_standard_derivatives');
         gl.getExtension('OES_standard_derivatives');
+        // Ref: https://github.com/KhronosGroup/WebGL/blob/master/sdk/tests/conformance/rendering/point-with-gl-pointcoord-in-fragment-shader.html
+        var pointSizeRange = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE);
+        console.log("point size range:"); console.log(pointSizeRange);
     } catch (e) {
     }
     if (!gl) {
@@ -24,22 +26,7 @@ function getShader(gl, id) {
     }
 
     var str = "";
-    //var k = shaderScript.firstChild;
-    //while (k) {
-    //    if (k.nodeType == 3) {
-    //        str += k.textContent;
-    //    }
-    //    k = k.nextSibling;
-    //}
-
     var shader;
-    //if (shaderScript.type == "x-shader/x-fragment") {
-    //    shader = gl.createShader(gl.FRAGMENT_SHADER);
-    //} else if (shaderScript.type == "x-shader/x-vertex") {
-    //    shader = gl.createShader(gl.VERTEX_SHADER);
-    //} else {
-    //    return null;
-    //}
 
     if (shaderScript.id == "shader-fs-default") {
         shader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -100,23 +87,9 @@ function initShaders(type) {
 
     shaderProgram.pointSizeAttribute = gl.getAttribLocation(shaderProgram, "vPointSize");
     gl.enableVertexAttribArray(shaderProgram.pointSizeAttribute);
-
-    //shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-    //shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
     
     return shaderProgram;
 }
-
-
-//var mvMatrix = mat4.create();
-//var pMatrix = mat4.create();
-
-function setMatrixUniforms() {
-    // gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
-    // gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
-}
-
-
 
 var pointPosBuffer;
 var colorBuffer;
@@ -135,7 +108,7 @@ function initBuffers() {
     colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     vertices = [
-         0.0, 1.0, 0.0, 1.0
+         1.0, 1.0, 0.0, 1.0
     ];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
     colorBuffer.itemSize = 4;
@@ -143,7 +116,7 @@ function initBuffers() {
 
     pointSizeBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, pointSizeBuffer);
-    vertices = [200.0];
+    vertices = [400.0];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
     pointSizeBuffer.itemSize = 1;
     pointSizeBuffer.numItems = 1;
@@ -153,12 +126,7 @@ function initBuffers() {
 function drawScene(shaderProgram) {
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    //mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
-
-    //mat4.identity(mvMatrix);
-
-    //mat4.translate(mvMatrix, [-1.5, 0.0, -7.0]);
+    
     gl.bindBuffer(gl.ARRAY_BUFFER, pointPosBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, pointPosBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
@@ -186,7 +154,6 @@ function webGLStart() {
     initBuffers(shaderPointDefault);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
-    gl.clear(gl.COLOR_BUFFER_BIT);
     drawScene(shaderPointDefault);
     
     
@@ -205,7 +172,6 @@ function webGLStart() {
     initBuffers(shaderPointCircle);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
-    gl.clear(gl.COLOR_BUFFER_BIT);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // To disable the background color of the canvas element
     gl.enable(gl.BLEND);
     drawScene(shaderPointCircle);

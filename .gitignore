@@ -30,3 +30,6 @@ heat-ip/
 .vs/
 *.opensdf
 *.sdf
+web-gl/Points/Web.Debug.config
+web-gl/Points/Web.config
+web-gl/Points/.vscode/

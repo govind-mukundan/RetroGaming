@@ -31,9 +31,10 @@ void
 main()
 {
     gl_Position =  vec4(vPosition, 1.0);
-	gl_PointSize = 10.0;
-    //color = vArgbColor;
-	color = vec4(1.0,0.0,0.0,0.0);
+	//gl_PointSize = 10.0;
+	gl_PointSize = vPointSize;
+    color = vArgbColor;
+	//color = vec4(1.0,0.0,0.0,1.0);
 }
 </script>
 
@@ -43,7 +44,7 @@ main()
     var gl;
     function initGL(canvas) {
         try {
-            gl = canvas.getContext("webgl");
+            gl = canvas.getContext("experimental-webgl");
             gl.viewportWidth = canvas.width;
             gl.viewportHeight = canvas.height;
         } catch (e) {
@@ -130,27 +131,35 @@ main()
 
 
 
-    var triangleVertexPositionBuffer;
-    var squareVertexPositionBuffer;
+    var pointPosBuffer;
+    var colorBuffer;
+	var pointSizeBuffer;
 
     function initBuffers() {
-        triangleVertexPositionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
+        pointPosBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, pointPosBuffer);
         var vertices = [
 			0.0,  0.0,  0.0
         ];
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-        triangleVertexPositionBuffer.itemSize = 1;
-        triangleVertexPositionBuffer.numItems = 1;
+        pointPosBuffer.itemSize = 3;
+        pointPosBuffer.numItems = 1;
 
-        squareVertexPositionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
+        colorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
         vertices = [
-             0.0,  0.0,  0.0
+             1.0,  0.0,  0.0, 1.0
         ];
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-        squareVertexPositionBuffer.itemSize = 3;
-        squareVertexPositionBuffer.numItems = 4;
+        colorBuffer.itemSize = 4;
+        colorBuffer.numItems = 1;
+		
+		pointSizeBuffer = gl.createBuffer(); 
+		gl.bindBuffer(gl.ARRAY_BUFFER, pointSizeBuffer);
+        vertices = [20.0];
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+		pointSizeBuffer.itemSize = 1;
+        pointSizeBuffer.numItems = 1;
     }
 
 
@@ -163,8 +172,16 @@ main()
         //mat4.identity(mvMatrix);
 
         //mat4.translate(mvMatrix, [-1.5, 0.0, -7.0]);
-        gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, pointPosBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, pointPosBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, colorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, pointSizeBuffer);
+        gl.vertexAttribPointer(shaderProgram.pointSizeAttribute, pointSizeBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		
+		
         //setMatrixUniforms();
         gl.drawArrays(gl.GL_POINTS, 0, 1);
 
@@ -173,7 +190,7 @@ main()
 
 
     function webGLStart() {
-        var canvas = document.getElementById("lesson01-canvas");
+        var canvas = document.getElementById("point-canvas");
         initGL(canvas);
         initShaders();
         initBuffers();
@@ -194,7 +211,7 @@ main()
 <body onload="webGLStart();">
     <a href="http://learningwebgl.com/blog/?p=28">&lt;&lt; Back to Lesson 1</a><br />
 
-    <canvas id="lesson01-canvas" style="border: none;" width="500" height="500"></canvas>
+    <canvas id="point-canvas" style="border: none;" width="500" height="500"></canvas>
 
     <br/>
     <a href="http://learningwebgl.com/blog/?p=28">&lt;&lt; Back to Lesson 1</a><br />

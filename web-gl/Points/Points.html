@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<!--References: https://www.khronos.org/registry/webgl/sdk/tests/conformance/rendering/point-with-gl-pointcoord-in-fragment-shader.html?webglVersion=1-->
+<html>
+<head>
+    <title> Aliasing a Point </title>
+	<meta charset="utf-8" />
+    <!--<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>-->
+    <script type="text/javascript" src="points.js"></script>
+    <script id="shader-fs-default" type="text/javascript" src="fs_point_default.js"></script>
+    <script id="fs-point-no-alias" type="text/javascript" src="fs_point_no_alias.js"></script>
+    <script id="fs-point-alias" type="text/javascript" src="fs_point_alias.js"></script>
+    <script id="shader-vs" type="text/javascript" src="vs-points.js"></script>
+</head>
+<body onload="webGLStart();">
+<p><div>
+    <canvas id="point-canvas" style="border: none;" width="500" height="500"></canvas>
+    </div>
+</p>
+
+<p><div>
+    <canvas id="point-canvas-no-alias" style="border: none;" width="500" height="500"></canvas>
+    </div>
+</p>
+
+<p><div>
+    <canvas id="point-canvas-alias" style="border: none;" width="500" height="500"></canvas>
+    </div>
+</p>
+
+</body>
+</html>

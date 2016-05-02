@@ -32,13 +32,13 @@ function getShader(gl, id) {
         shader = gl.createShader(gl.FRAGMENT_SHADER);
         str = fs_point_default;
     }
-    else if (shaderScript.id == "fs-point-no-alias") {
-        shader = gl.createShader(gl.FRAGMENT_SHADER);
-        str = fs_point_no_alias;
-    }
     else if (shaderScript.id == "fs-point-alias") {
         shader = gl.createShader(gl.FRAGMENT_SHADER);
         str = fs_point_alias;
+    }
+    else if (shaderScript.id == "fs-point-anti-alias") {
+        shader = gl.createShader(gl.FRAGMENT_SHADER);
+        str = fs_point_anti_alias;
     }
     else if (shaderScript.id == "shader-vs") {
         shader = gl.createShader(gl.VERTEX_SHADER);
@@ -63,9 +63,9 @@ function initShaders(type) {
     if (type == 0)
         fragmentShader = getShader(gl, "shader-fs-default");
     else if (type == 1)
-        fragmentShader = getShader(gl, "fs-point-no-alias");
-    else if (type == 2)
         fragmentShader = getShader(gl, "fs-point-alias");
+    else if (type == 2)
+        fragmentShader = getShader(gl, "fs-point-anti-alias");
 
     var vertexShader = getShader(gl, "shader-vs");
 
@@ -148,7 +148,7 @@ var shaderPointDefault;
 function webGLStart() {
     var point = [0.0, 0.0, 0.0];
     var color = [1.0, 0.0, 0.0, 1.0];
-    var size = [200.0];
+    var size = [400.0];
 
     var canvas = document.getElementById("point-canvas");
     initGL(canvas);
@@ -159,7 +159,7 @@ function webGLStart() {
     drawScene(shaderPointDefault);
 
 
-    canvas = document.getElementById("point-canvas-no-alias");
+    canvas = document.getElementById("point-canvas-alias");
     initGL(canvas);
     shaderPointCircle = initShaders(1);
     initBuffers(point, color, size);
@@ -168,7 +168,7 @@ function webGLStart() {
     drawScene(shaderPointCircle);
 
 
-    canvas = document.getElementById("point-canvas-alias");
+    canvas = document.getElementById("point-canvas-anti-alias");
     initGL(canvas);
     shaderPointCircle = initShaders(2);
     initBuffers(point, color, size);
@@ -186,6 +186,11 @@ function webGLStart() {
     // We can do this coz gl points to the fizz canvas at this point
 var fuzz = () => {     
 
+    // Clear the elements of the arrays
+    point = [];
+    color = [];
+    size = [];
+    
     //point.push(0.2); point.push(0); point.push(0);
     //color.push(Math.random()); color.push(Math.random()); color.push(Math.random()); color.push(.5);
     //size.push(200);
@@ -193,7 +198,7 @@ var fuzz = () => {
     for (var index = 0; index < 300; index++) {
         point.push(rf()); point.push(rf()); point.push(0);
         color.push(Math.random()); color.push(Math.random()); color.push(Math.random()); color.push(Math.random());
-        size.push(Math.random() * 100);
+        size.push(Math.random() * 125);
     }
 
     initBuffers(point, color, size);
@@ -205,10 +210,6 @@ var fuzz = () => {
     gl.disable(gl.DEPTH_TEST);
     drawScene(shaderPointCircle);
     
-    // Clear the elements of the arrays
-    point = [];
-    color = [];
-    size = [];
 };
     setInterval(fuzz, 100);
 

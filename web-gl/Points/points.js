@@ -2,7 +2,7 @@
 var gl;
 function initGL(canvas) {
     try {
-         gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        gl = canvas.getContext('webgl',{alpha:true,antialias: true}) || canvas.getContext('experimental-webgl',{alpha:true,antialias: true});
 
         gl.viewportWidth = canvas.width;
         gl.viewportHeight = canvas.height;
@@ -32,11 +32,11 @@ function getShader(gl, id) {
         shader = gl.createShader(gl.FRAGMENT_SHADER);
         str = fs_point_default;
     }
-    else if ( shaderScript.id == "fs-point-no-alias") {        
+    else if (shaderScript.id == "fs-point-no-alias") {
         shader = gl.createShader(gl.FRAGMENT_SHADER);
         str = fs_point_no_alias;
     }
-    else if (shaderScript.id == "fs-point-alias") {        
+    else if (shaderScript.id == "fs-point-alias") {
         shader = gl.createShader(gl.FRAGMENT_SHADER);
         str = fs_point_alias;
     }
@@ -60,13 +60,13 @@ function getShader(gl, id) {
 
 function initShaders(type) {
     var fragmentShader;
-    if(type == 0)
+    if (type == 0)
         fragmentShader = getShader(gl, "shader-fs-default");
-    else if(type == 1)
+    else if (type == 1)
         fragmentShader = getShader(gl, "fs-point-no-alias");
-    else if(type == 2)
+    else if (type == 2)
         fragmentShader = getShader(gl, "fs-point-alias");
-    
+
     var vertexShader = getShader(gl, "shader-vs");
 
     var shaderProgram = gl.createProgram();
@@ -87,7 +87,7 @@ function initShaders(type) {
 
     shaderProgram.pointSizeAttribute = gl.getAttribLocation(shaderProgram, "vPointSize");
     gl.enableVertexAttribArray(shaderProgram.pointSizeAttribute);
-    
+
     return shaderProgram;
 }
 
@@ -95,38 +95,34 @@ var pointPosBuffer;
 var colorBuffer;
 var pointSizeBuffer;
 
-function initBuffers() {
+function initBuffers(point, color, size) {
     pointPosBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, pointPosBuffer);
-    var vertices = [
-        0.0, 0.0, 0.0
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(point), gl.STATIC_DRAW);
     pointPosBuffer.itemSize = 3;
-    pointPosBuffer.numItems = 1;
+    pointPosBuffer.numItems = point.length / 3;
 
     colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    vertices = [
-         1.0, 1.0, 0.0, 1.0
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(color), gl.STATIC_DRAW);
     colorBuffer.itemSize = 4;
-    colorBuffer.numItems = 1;
+    colorBuffer.numItems = color.length / 4;
 
     pointSizeBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, pointSizeBuffer);
-    vertices = [400.0];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(size), gl.STATIC_DRAW);
     pointSizeBuffer.itemSize = 1;
-    pointSizeBuffer.numItems = 1;
+    pointSizeBuffer.numItems = size.length;
 }
 
 
 function drawScene(shaderProgram) {
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    
+
     gl.bindBuffer(gl.ARRAY_BUFFER, pointPosBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, pointPosBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
@@ -136,44 +132,85 @@ function drawScene(shaderProgram) {
     gl.bindBuffer(gl.ARRAY_BUFFER, pointSizeBuffer);
     gl.vertexAttribPointer(shaderProgram.pointSizeAttribute, pointSizeBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-
-    //setMatrixUniforms();
-    gl.drawArrays(gl.GL_POINTS, 0, 1);
+    gl.drawArrays(gl.GL_POINTS, 0, pointSizeBuffer.numItems);
 
 }
 
+
+function rf() {
+    return (2.0 * Math.random() - 1.0);
+}
 
 var shaderPointCircle;
 var shaderPointAliased;
 var shaderPointDefault;
 
 function webGLStart() {
+    var point = [0.0, 0.0, 0.0];
+    var color = [1.0, 0.0, 0.0, 1.0];
+    var size = [200.0];
+
     var canvas = document.getElementById("point-canvas");
     initGL(canvas);
     shaderPointDefault = initShaders(0);
-    initBuffers(shaderPointDefault);
+    initBuffers(point, color, size);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
     drawScene(shaderPointDefault);
-    
-    
+
+
     canvas = document.getElementById("point-canvas-no-alias");
     initGL(canvas);
     shaderPointCircle = initShaders(1);
-    initBuffers(shaderPointCircle);
+    initBuffers(point, color, size);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
     drawScene(shaderPointCircle);
-    
-    
+
+
     canvas = document.getElementById("point-canvas-alias");
     initGL(canvas);
     shaderPointCircle = initShaders(2);
-    initBuffers(shaderPointCircle);
+    initBuffers(point, color, size);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(gl.DEPTH_TEST);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // To disable the background color of the canvas element
+    //gl.enable(gl.DEPTH_TEST);
+    gl.disable(gl.DEPTH_TEST);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // To disable the background color of the canvas element
     gl.enable(gl.BLEND);
     drawScene(shaderPointCircle);
+    //gl.disable(gl.BLEND);
+
+    canvas = document.getElementById("fizz-canvas");
+    initGL(canvas);
+    shaderPointCircle = initShaders(2);
+    // We can do this coz gl points to the fizz canvas at this point
+var fuzz = () => {     
+
+    //point.push(0.2); point.push(0); point.push(0);
+    //color.push(Math.random()); color.push(Math.random()); color.push(Math.random()); color.push(.5);
+    //size.push(200);
+    // Generate a random collection of points with different sizes, colors and location
+    for (var index = 0; index < 300; index++) {
+        point.push(rf()); point.push(rf()); point.push(0);
+        color.push(Math.random()); color.push(Math.random()); color.push(Math.random()); color.push(Math.random());
+        size.push(Math.random() * 100);
+    }
+
+    initBuffers(point, color, size);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // To disable the background color of the canvas element
+    gl.enable(gl.BLEND);
+    gl.disable(gl.DEPTH_TEST);
+    drawScene(shaderPointCircle);
     
+    // Clear the elements of the arrays
+    point = [];
+    color = [];
+    size = [];
+};
+    setInterval(fuzz, 100);
+
+
 }

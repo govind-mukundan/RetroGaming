@@ -82,7 +82,7 @@ function initShaders(type) {
 
     shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "vPosition");
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-    shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "vArgbColor");
+    shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "vRgbaColor");
     gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 
     shaderProgram.pointSizeAttribute = gl.getAttribLocation(shaderProgram, "vPointSize");

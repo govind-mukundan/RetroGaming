@@ -15,7 +15,7 @@ void main()
     delta = fwidth(r);								    // This returns the derivative of r variable at this pixel
     alpha = 1.0 - smoothstep(1.0 - delta, 1.0, r);		// For pixels with radius in the range 1-delta to 1, interpolate between [1-delta,1]. If x < min, op = 0, if x > max, op = 1
 #endif
-//gl_FragColor = color * vec4(alpha,alpha,alpha,alpha);
+
 gl_FragColor = color * alpha;
 
 }`;

@@ -211,7 +211,52 @@ var fuzz = () => {
     drawScene(shaderPointCircle);
     
 };
-    setInterval(fuzz, 100);
+
+// shim layer with setTimeout fallback
+window.requestAnimFrame = (function(){
+  return  window.requestAnimationFrame       ||
+          window.webkitRequestAnimationFrame ||
+          window.mozRequestAnimationFrame    ||
+          window.ieRequestAnimationFrame     ||
+          function( callback ){
+            window.setTimeout(callback, 1000 / 60);
+          };
+})();
+
+var fpsElement = document.getElementById("fps");
+
+var numFramesToAverage = 16;
+var frameTimeHistory = [];
+var frameTimeIndex = 0;
+var totalTimeForFrames = 0;
+
+var then = performance.now();  // get time in ms
+var render = (now) => {
+    // compute time since last frame
+    var elapsedTime = now - then;
+    then = now;
+    // Add the new time and substract the oldest time from the total
+    totalTimeForFrames += elapsedTime - (frameTimeHistory[frameTimeIndex] || 0);
+    // record the new time
+    frameTimeHistory[frameTimeIndex] = elapsedTime;
+    // advance the history index.
+    frameTimeIndex = (frameTimeIndex + 1) % numFramesToAverage;
+    
+    // compute fps
+    var averageElapsedTime = totalTimeForFrames / numFramesToAverage;
+    var fps = 1000 / averageElapsedTime;
+    fpsElement.innerText = fps.toFixed(2); 
+    
+    // render every 5 frames
+    if(frameTimeIndex % 5 == 0) fuzz();
+    
+    requestAnimFrame(render);
+    //console.log(fps);
+};
+   requestAnimFrame(render);
+   // Use requestAnimationFrame instead of a timer, rendering will stop if you minimize the browser
+   // setInterval(fuzz, 100); 
 
 
 }
+

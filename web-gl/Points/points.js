@@ -180,6 +180,9 @@ function webGLStart() {
     drawScene(shaderPointCircle);
     //gl.disable(gl.BLEND);
 
+    var ScaleFactor = 100;
+    var NumPoints = 300;
+   
     canvas = document.getElementById("fizz-canvas");
     initGL(canvas);
     shaderPointCircle = initShaders(2);
@@ -195,10 +198,12 @@ var fuzz = () => {
     //color.push(Math.random()); color.push(Math.random()); color.push(Math.random()); color.push(.5);
     //size.push(200);
     // Generate a random collection of points with different sizes, colors and location
-    for (var index = 0; index < 300; index++) {
+    var n = NumPoints;
+    var s = ScaleFactor;
+    for (var index = 0; index < n; index++) {
         point.push(rf()); point.push(rf()); point.push(0);
         color.push(Math.random()); color.push(Math.random()); color.push(Math.random()); color.push(Math.random());
-        size.push(Math.random() * 125);
+        size.push(Math.random() * s);
     }
 
     initBuffers(point, color, size);
@@ -254,9 +259,24 @@ var render = (now) => {
     //console.log(fps);
 };
    requestAnimFrame(render);
+
    // Use requestAnimationFrame instead of a timer, rendering will stop if you minimize the browser
    // setInterval(fuzz, 100); 
 
-
+    // Stuff for the slider controls:
+    size_slider = document.getElementById('size_slider')
+    size_slider.oninput  = function(){ 
+    ScaleFactor = this.value;
+    document.getElementById("size_slider_val").innerText = this.value;
+    }
+    size_slider.value = ScaleFactor;
+    
+    num_slider = document.getElementById('num_slider')
+    num_slider.oninput  = function(){ NumPoints = this.value; document.getElementById("num_slider_val").innerText = this.value}
+    num_slider.value = NumPoints;
+    
+    // Force trigger the controls to update the values
+    num_slider.oninput();
+    size_slider.oninput();
 }
 

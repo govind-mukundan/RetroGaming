@@ -31,6 +31,14 @@
     <canvas id="fizz-canvas" style="border:10px solid #000000; background: green;" width="1000" height="500"></canvas>
     </div>
 </p>
-<div>fps: <span id="fps"></span></div>
+
+<div class="container">
+<div style="float:left;color:green;width: 100px;">Max Size: <span id="size_slider_val"></span></div>
+<input id="size_slider" type="range" min="0" max="500" step="10" style="float:left;"/>
+<div style="float:left;color:blue;width: 100px;">Count: <span id="num_slider_val"></span></div>
+<input id="num_slider" type="range" min="0" max="10000" step="100" style="float:left;"/>
+<div style="float:left;color:red;width: 100px;"> fps: <span id="fps"></span></div>
+</div>
+
 </body>
 </html>

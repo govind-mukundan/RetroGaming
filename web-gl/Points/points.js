@@ -147,7 +147,7 @@ var shaderPointDefault;
 
 function webGLStart() {
     var point = [0.0, 0.0, 0.0];
-    var color = [1.0, 0.0, 0.0, 1.0];
+    var color = [1.0, 0.2, 1.0, 1.0];
     var size = [400.0];
 
     var canvas = document.getElementById("point-canvas");

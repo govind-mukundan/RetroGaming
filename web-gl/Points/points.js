@@ -191,25 +191,12 @@ function webGLStart() {
     shaderPointCircle = initShaders(2);
     // We can do this coz gl points to the fizz canvas at this point
 var fuzz = () => {     
-
-    // Clear the elements of the arrays
-    point = [];
-    color = [];
-    size = [];
     
     //point.push(0.2); point.push(0); point.push(0);
     //color.push(Math.random()); color.push(Math.random()); color.push(Math.random()); color.push(.5);
     //size.push(200);
     // Generate a random collection of points with different sizes, colors and location
-    var n = NumPoints;
-    var s = ScaleFactor;
-    for (var index = 0; index < n; index++) {
-        point.push(rf()); point.push(rf()); point.push(0);
-        color.push(Math.random()); color.push(Math.random()); color.push(Math.random()); color.push(Math.random());
-        size.push(Math.random() * s);
-    }
 
-    initBuffers(point, color, size);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -217,8 +204,23 @@ var fuzz = () => {
     gl.enable(gl.BLEND);
     gl.disable(gl.DEPTH_TEST);
     drawScene(shaderPointCircle);
-    
 };
+
+var fuzz_create = () => {
+    var n = NumPoints;
+    var s = ScaleFactor;
+    for (var index = 0; index < NumPoints; index++) {
+        point.push(rf()); point.push(rf()); point.push(0);
+        color.push(Math.random()); color.push(Math.random()); color.push(Math.random()); color.push(Math.random());
+        size.push(Math.random() * ScaleFactor);
+    }
+    initBuffers(point, color, size);
+    // Clear the elements of the arrays
+    point = [];
+    color = [];
+    size = [];
+    
+}
 
 // shim layer with setTimeout fallback
 window.requestAnimFrame = (function(){
@@ -233,13 +235,14 @@ window.requestAnimFrame = (function(){
 
 var fpsElement = document.getElementById("fps");
 
-var numFramesToAverage = 16;
+var numFramesToAverage = 15;
 var frameTimeHistory = [];
 var frameTimeIndex = 0;
 var totalTimeForFrames = 0;
 
 var then = performance.now();  // get time in ms
 var render = (now) => {
+  
     // compute time since last frame
     var elapsedTime = now - then;
     then = now;
@@ -250,13 +253,16 @@ var render = (now) => {
     // advance the history index.
     frameTimeIndex = (frameTimeIndex + 1) % numFramesToAverage;
     
+    // render every n frames
+    if(frameTimeIndex % 4 == 0) fuzz_create();
+    if(frameTimeIndex % 8 == 0) {
+    fuzz();
     // compute fps
     var averageElapsedTime = totalTimeForFrames / numFramesToAverage;
     var fps = 1000 / averageElapsedTime;
     fpsElement.innerText = fps.toFixed(2); 
+    }
     
-    // render every 5 frames
-    if(frameTimeIndex % 5 == 0) fuzz();
     
     requestAnimFrame(render);
     //console.log(fps);
@@ -264,7 +270,7 @@ var render = (now) => {
    requestAnimFrame(render);
 
    // Use requestAnimationFrame instead of a timer, rendering will stop if you minimize the browser
-   // setInterval(fuzz, 100); 
+   // setInterval(render, 100); 
 
     // Stuff for the slider controls:
     size_slider = document.getElementById('size_slider')

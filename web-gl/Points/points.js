@@ -152,6 +152,9 @@ function webGLStart() {
 
     var canvas = document.getElementById("point-canvas");
     initGL(canvas);
+    var pointSizeRange = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE);
+    console.log("The max possible point size on this baby is:" + pointSizeRange[1]);
+    document.getElementById("size_slider").setAttribute("max",pointSizeRange[1]);
     shaderPointDefault = initShaders(0);
     initBuffers(point, color, size);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
